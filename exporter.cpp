@@ -60,7 +60,7 @@ int Exporter::doExport() {
         QByteArray line = okinaFile.readLine();
         okinaFileFirstLineByteArray = line.split(';');
         for (int i = 0; i < okinaFileFirstLineByteArray.length(); i++) {
-            okinaFileFirstLine.push_back(QString::fromLatin1(okinaFileFirstLineByteArray[i]));
+            okinaFileFirstLine.push_back(QString::fromLatin1(okinaFileFirstLineByteArray[i]).remove("\""));
         }
         okinaFileFirstLine[okinaFileFirstLine.length()-1].chop(4);
 
@@ -68,7 +68,7 @@ int Exporter::doExport() {
             line = okinaFile.readLine();
             okinaFileLineByteArray = line.split(';');
             for (int i = 0; i < okinaFileLineByteArray.length(); i++) {
-                okinaFileElement = QString::fromLatin1(okinaFileLineByteArray[i]);
+                okinaFileElement = QString::fromLatin1(okinaFileLineByteArray[i]).remove("\"");
                 if(okinaFileElement == "NULL") {
                     okinaFileElement = "";
                 }
@@ -87,10 +87,14 @@ int Exporter::doExport() {
                 }
 
                 // Passenger_comments file
-                for (int i = 0; i < passengerCommentAttributes.length(); i++) {
-                    *gpfsTextStreams.value("passengerComments") << okinaFileLine.value(QString("passenger_comments§").append(passengerCommentAttributes[i]), "");
-                    (i == passengerCommentAttributes.length()-1) ? *gpfsTextStreams.value("passengerComments") << endl : *gpfsTextStreams.value("passengerComments") << ",";
+                if (okinaFileLine.value(QString("passenger_comments§comment")) != "") {
+                    // Add line only if comment is not empty
+                    for (int i = 0; i < passengerCommentAttributes.length(); i++) {
+                        *gpfsTextStreams.value("passengerComments") << okinaFileLine.value(QString("passenger_comments§").append(passengerCommentAttributes[i]), "");
+                        (i == passengerCommentAttributes.length()-1) ? *gpfsTextStreams.value("passengerComments") << endl : *gpfsTextStreams.value("passengerComments") << ",";
+                    }
                 }
+
 
                 // Passenger_tutors file
                 for (int i = 0; i < passengerTutorAttributes.length(); i++) {
@@ -115,12 +119,6 @@ int Exporter::doExport() {
                 if (okinaFileLine.value(QString("passenger_tags§uid_format"), "") == "") {
                     okinaFileLine.insert(QString("passenger_tags§uid_format"), "DEC");
                 }
-                if (okinaFileLine.value(QString("passenger_tags§delivery_date"), "") == "") {
-                    okinaFileLine.insert(QString("passenger_tags§delivery_date"), "20210308");
-                }
-                if (okinaFileLine.value(QString("passenger_tags§validity_end"), "") == "") {
-                    okinaFileLine.insert(QString("passenger_tags§validity_end"), "20280307");
-                }
 
                 for (int i = 0; i < passengerTagAttributes.length(); i++) {
                     *gpfsTextStreams.value("passengerTags") << okinaFileLine.value(QString("passenger_tags§").append(passengerTagAttributes[i]), "");
@@ -129,7 +127,7 @@ int Exporter::doExport() {
 
                 // Passenger_tickets file
                 QString trip, originStopPoint, destinationStopPoint;
-                QString restrictions = "[";
+                QString restrictions = "\"[";
                 for (int i=1; i<=9; i++) {
                     if (okinaFileLine.value(QString("bookings_").append(QString::number(i)).append("§trip_id"), "") != "") {
                         trip = okinaFileLine.value(QString("bookings_").append(QString::number(i)).append("§trip_id"), "");
@@ -144,7 +142,7 @@ int Exporter::doExport() {
                     restrictions = "";
                 } else {
                     restrictions.chop(2);
-                    restrictions.append("]");
+                    restrictions.append("]\"");
                 }
                 okinaFileLine.insert(QString("passenger_tickets§restrictions"), restrictions);
 
