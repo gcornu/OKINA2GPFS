@@ -34,9 +34,18 @@ MainWindow::MainWindow(QWidget *parent) :
     layout->addWidget(folderPathLineEdit, 1, 1);
     layout->addWidget(chooseFolderButton, 1, 2);
 
+    QLabel * schoolYearLabel = new QLabel(tr("Année scolaire :"));
+    QComboBox * selectSchoolYear = new QComboBox();
+    QStringList schoolYears = { "2020 - 2021", "2021 - 2022", "2022 - 2023" };
+    selectSchoolYear->addItems(schoolYears);
+    connect(selectSchoolYear, SIGNAL(currentIndexChanged(int)), this, SLOT(setSchoolYear(int)));
+    selectSchoolYear->setCurrentIndex(1);
+    layout->addWidget(schoolYearLabel, 2, 0);
+    layout->addWidget(selectSchoolYear, 2, 1);
+
     QPushButton * exportButton = new QPushButton(tr("Export GPFS"));
     connect(exportButton, SIGNAL(clicked()), this, SLOT(exportGPFS()));
-    layout->addWidget(exportButton, 2, 2);
+    layout->addWidget(exportButton, 3, 2);
 
     widget->setLayout(layout);
 }
@@ -67,7 +76,7 @@ void MainWindow::selectFolderPath()
 
 void MainWindow::exportGPFS()
 {
-    Exporter exporter(okinaFile, folderPath);
+    Exporter exporter(okinaFile, folderPath, schoolYearIndex);
 
     try {
         exporter.doExport();

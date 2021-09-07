@@ -2,10 +2,11 @@
 #include <QDebug>
 #include <QTextCodec>
 
-Exporter::Exporter(QString okinaFilePathParam, QString exportFolderPathParam)
+Exporter::Exporter(QString okinaFilePathParam, QString exportFolderPathParam, int schoolYearIndexParam)
 {
     okinaFilePath = okinaFilePathParam;
     exportFolderPath = exportFolderPathParam;
+    schoolYearIndex = schoolYearIndexParam;
 }
 
 int Exporter::doExport() {
@@ -151,10 +152,10 @@ int Exporter::doExport() {
                     okinaFileLine.insert(QString("passenger_tickets§fare_id"), "2SCHOOL_SUBSCRIPTION");
                 }
                 if (okinaFileLine.value(QString("passenger_tickets§ticket_start_on"), "") == "") {
-                    okinaFileLine.insert(QString("passenger_tickets§ticket_start_on"), "20210308000000");
+                    okinaFileLine.insert(QString("passenger_tickets§ticket_start_on"), QString(schoolYearStartDates[schoolYearIndex]).append("000000"));
                 }
                 if (okinaFileLine.value(QString("passenger_tickets§ticket_end_on"), "") == "") {
-                    okinaFileLine.insert(QString("passenger_tickets§ticket_end_on"), "20210706235959");
+                    okinaFileLine.insert(QString("passenger_tickets§ticket_end_on"), QString(schoolYearEndDates[schoolYearIndex]).append("235959"));
                 }
 
                 for (int i = 0; i < passengerTicketAttributes.length(); i++) {
@@ -184,10 +185,10 @@ int Exporter::doExport() {
                     if (okinaFileLine.value(QString("bookings_").append(QString::number(i)).append("§booking_id"), "") != "") {
                         // Adding static data if not present in OKINA file
                         if (okinaFileLine.value(QString("bookings_").append(QString::number(i)).append("§start_date"), "") == "") {
-                            okinaFileLine.insert(QString("bookings_").append(QString::number(i)).append("§start_date"), "20210308");
+                            okinaFileLine.insert(QString("bookings_").append(QString::number(i)).append("§start_date"), schoolYearStartDates[schoolYearIndex]);
                         }
                         if (okinaFileLine.value(QString("bookings_").append(QString::number(i)).append("§end_date"), "") == "") {
-                            okinaFileLine.insert(QString("bookings_").append(QString::number(i)).append("§end_date"), "20210706");
+                            okinaFileLine.insert(QString("bookings_").append(QString::number(i)).append("§end_date"), schoolYearEndDates[schoolYearIndex]);
                         }
                         if (okinaFileLine.value(QString("bookings_").append(QString::number(i)).append("§days"), "") == "") {
                             okinaFileLine.insert(QString("bookings_").append(QString::number(i)).append("§days"), "1111100");

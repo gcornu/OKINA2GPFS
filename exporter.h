@@ -7,12 +7,24 @@
 class Exporter
 {
     public:
-        Exporter(QString okinaFile, QString folderPath);
+        Exporter(QString okinaFile, QString folderPath, int schoolYearIndex);
         int doExport();
 
     private:
         QString okinaFilePath;
         QString exportFolderPath;
+        int schoolYearIndex;
+
+        QList<QString> schoolYearStartDates = {
+            "20210308",
+            "20210902",
+            "20220901"
+        };
+        QList<QString> schoolYearEndDates = {
+            "20210706",
+            "20220707",
+            "20230708"
+        };
 
         QList<QString> passengerAttributes = {
             "passenger_id",
